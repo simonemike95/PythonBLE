@@ -12,9 +12,12 @@ from GattServer import register_app_cb
 from GattServer import BLUEZ_SERVICE_NAME, GATT_MANAGER_IFACE, DBUS_OM_IFACE, DBUS_PROP_IFACE
 from GattServer import GATT_SERVICE_IFACE, GATT_CHRC_IFACE, GATT_DESC_IFACE
 
+# STEP 1
+# If you want to add a new service or characteristic, it should be added similar to the following
+# each service and characteristic will be its own class, with its own UUIDs and name
 from RxTx import RxTxService, RxTxCharacteristic, RXTX_SERVICE_UUID, RXTX_SERVICE_NAME
 
-LOCAL_NAME =    "acv-gatt-server"
+LOCAL_NAME =    "gatt-server"
 mainloop = None
 
 today = datetime.now()
@@ -67,11 +70,15 @@ class Application(dbus.service.Object):
 class UartApplication(Application):
     def __init__(self, bus):
         Application.__init__(self, bus)
+        # STEP 2
+        # The services should be added here
         self.add_service(RxTxService(bus, 0))
 
 class UartAdvertisement(Advertisement):
     def __init__(self, bus, index):
         Advertisement.__init__(self, bus, index, "peripheral")
+        # STEP 3
+        # UUIDs for the service need to be added here
         self.add_service_uuid(RXTX_SERVICE_UUID)
         self.add_local_name(LOCAL_NAME)
         self.include_tx_power = True
@@ -107,6 +114,9 @@ def set_profile():
     }
     bus = dbus.SystemBus()
     manager = dbus.Interface(bus.get_object("org.bluez", "/org/bluez"), "org.bluez.ProfileManager1")
+    
+    # OPTIONAL STEP 4
+    # You can change the UUID for the profile advertised here
     manager.RegisterProfile("/org/bluez/hci0", "00001124-0000-1000-8000-00805f9b34fb", opts)
 
 def main():
